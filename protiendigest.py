@@ -36,7 +36,10 @@ def digest(CSV_file, method, outputfile):
                     dict_peptides[pep] = 1
 
     writer(list_peptides, outputfile)
-
+    # this is the number of digested peptides
+    print(len(list_peptides))
+    # this is the list of prototypic peptides
+    print(len(dict_peptides))
 
 
 outputfile = 'C:/Users\mukul\Desktop\Spring24\Proteomics\Group Project\output2.csv'
