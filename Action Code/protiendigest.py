@@ -1,30 +1,20 @@
 from Bio import SeqIO
 from pyteomics import parser
+import csv
 
-def digest_peptides(filename):
-    list_peptides = []
-    set_peptides = set()
-    dict_peptides = dict()
+def fasta_to_csv(filename, outputfile):
+    list_sequence = []
     for record in SeqIO.parse("UP000000425_2024_01_18.fasta", "fasta"):
-        protein_id = str(record.id)
         sequence = str(record.seq)
-    # use pyteomics to generate digested peptides
-        digested_peptides = parser.cleave(filename, digest)
-        for pep in digested_peptides:
-            list_peptides.append(pep)
-            set_peptides.add(pep)
-            if pep in dict_peptides.keys():
-                dict_peptides[pep] += 1
-            else:
-                dict_peptides[pep] = 1
+        list_sequence.append(sequence)
+    with open(outputfile, "w+") as csv_out:
+        writer = csv.DictWriter(
+            csv_out, fieldnames= ["Sequence"], lineterminator="\n"
+        )
+        writer.writeheader()
+        for seq in list_sequence:
+            writer.write({"Sequence": seq})
 
-print("number of peptides overall:", len(list_peptides))
-print("number of peptide sequences", len(set_peptides))
-print("number of peptide sequences in dict", len(dict_peptides.keys()))
-
-counter = 0
-for pep in dict_peptides.keys():
-    if dict_peptides[pep] > 1:
-        counter += 1
-
-print(counter)
+inputFasta = "C:\Users\Liv Caspersson\Documents\Proteomics\The-Mass-Spec-taculars\uniprotkb_proteome_UP000000425_2024_01_22.fasta"
+outfile_path = "C:\Users\Liv Caspersson\Documents\Proteomics\The-Mass-Spec-taculars\fasta_to_csv output\output.csv"
+fasta_to_csv(inputFasta, outfile_path)

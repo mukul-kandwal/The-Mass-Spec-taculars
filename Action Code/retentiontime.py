@@ -1,5 +1,9 @@
 from Bio import SeqIO
 from pyteomics import parser
+import plotly.graph_objects as go
+from collections import defaultdict as ddict
+import csv
+import sys
 
 def digest_peptides(filename, digest):
     list_peptides = []
