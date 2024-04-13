@@ -1,44 +1,65 @@
-from Bio import SeqIO
+from pyteomics import mass
+from pyteomics import electrochem 
+from pyteomics import parser
+from Bio.SeqUtils.ProtParam import ProteinAnalysis
 import csv
-import pandas as pd 
+import pandas as pd
 import numpy as np
 import plotly.express as px
 import plotly.graph_objs as go
 import plotly as py
 
 
-def csvTodf(csv_file):
-    return pd.read_csv(csv_file)
+def csvToList(csv_file):
+    data = []
+    with open(csv_file, newline='') as csvfile:
+        csv_reader = csv.reader(csvfile)
+        for row in csv_reader:
+            data.append(row)
+    return data 
 
+seq_list = csvToList('output.csv')
 
-df = csvTodf('protein_properties.csv')
+def MW(seq_list): #boxplot of molecular weight
+    MW_list = []
+    columns = ['MW']
+    for seq in seq_list: 
+        mw = mass.calculate_mass(seq)
+        MW_list.append([mw])
+    
+    df = pd.DataFrame(MW_list, columns = columns) #convert list into dataframe for plotly 
+    print(df)
+    
+    fig = px.box(df, y = 'MW', title='Distribution of molecular weight', points='all')
+    fig.show()
+#box plot, show all the datapoints right next to the main box plot
+MW(seq_list) #you can create if user choose this, execute this 
 
-def MW(dataframe):
-    #plot molecular weight results on boxplot 
-    fig = px.box(dataframe, y = 'MW', title='Distribution of molecular weight of proteins within proteome')
+def pI(seq_list):
+    pI_list = []
+    columns = ['pI']
+    for seq in seq_list:
+        for string in seq: 
+            parsed_seq = parser.parse(string, show_unmodified_termini=True)
+            pi = electrochem.pI(parsed_seq)
+            pI_list.append([pi])
+    df = pd.DataFrame(pI_list, columns = columns)
+    fig = px.histogram(df, x="pI", nbins=20)
     fig.show()
 
-#MW(df) #you can create if user choose this, execute this 
+pI(seq_list)
 
-def pI(dataframe):
-    # create the bins
-    counts, bins = np.histogram(dataframe.pI, bins=range(0, 13, 1))
-    bins = 0.5 * (bins[:-1] + bins[1:])
-    fig = px.bar(x=bins, y=counts, labels={'x':'isoelectric point (pI)', 'y':'Total number of proteins'})
-    fig.show()
-    # fig = px.histogram(dataframe, x="pI", nbins=20)
-    # fig.show()
+def hydrophobicity(seq_list):
+    hydro_list = []
+    columns = ['Hydrophobicity']
+    for seq in seq_list:
+        for string in seq:
+            properties = ProteinAnalysis(string)
+            hydro_list.append([properties.gravy()])
+    df = pd.DataFrame(hydro_list, columns= columns)
 
-#pI(df)
-
-def hydrophobicity(dataframe):
-    fig = px.histogram(dataframe, x="Hydrophobicity", nbins=20)
+    fig = px.histogram(df, x="Hydrophobicity", nbins=20)
     fig.show()
 
-#hydrophobicity(df)
+hydrophobicity(seq_list)
 
-def type(dataframe):
-    fig = px.histogram(dataframe, x= "Category")
-    fig.show()
-
-type(df)
