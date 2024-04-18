@@ -10,6 +10,7 @@ import random
 from pyteomics import mass
 from colordict import ColorDict
 import plotly.graph_objs as go
+import matplotlib as plt
 #import pymzml
 
 
@@ -83,7 +84,6 @@ def plot_ms(mz_dict):
         title='m/z Values of Proteins',
         xaxis=dict(title='m/z'),
         yaxis=dict(title='Intensity'))
-        barmode='group'
 
 #Create figure
         fig = go.Figure(data=traces, layout=layout)
@@ -91,6 +91,28 @@ def plot_ms(mz_dict):
     # Plot figure
         fig.show()
 plot_ms(mz_dict)
+
+# def plot_ms(input):
+#     categories = list(input.keys())
+#     years = [pair[0] for pair in input[categories[0]]]  # Assuming all categories have the same years
+#     values = {category: [pair[1] for pair in input[category]] for category in categories}
+
+#     # Plotting
+#     bar_width = 0.35
+#     plt.figure()
+
+#     for i, category in enumerate(categories):
+#         plt.subplot(len(categories), 1, i+1)
+#         plt.bar([x + i * bar_width for x in years], values[category], bar_width, label=category)
+#         plt.xlabel('Year')
+#         plt.ylabel('Value')
+#         plt.title(category)
+#         plt.xticks([x + bar_width / 2 for x in years], years)
+
+#     plt.tight_layout()
+#     plt.show()
+    
+# plot_ms(mz_dict)
 
 
 #         for i in range(len(peaks)):
