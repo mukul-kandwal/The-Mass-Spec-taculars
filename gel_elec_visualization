@@ -1,0 +1,65 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import csv
+#gel elecrophorisis script
+
+#read csv
+input_list= read(#filepath)
+def read(input_file_path):
+    # use this function like this: input_list = read(<input_file_path>)
+    with open(input_file_path, 'r') as read_obj:
+        csv_reader = csv.reader(read_obj)
+        list_of_csv = list(csv_reader)
+        input_list = []
+        for row in list_of_csv:
+            input_list.append(row[0])
+        return input_list
+#calculating molecular weight, put in a new list
+def MW(seq_list): #boxplot of molecular weight
+    MW_list = []
+    columns = ['MW']
+    for seq in seq_list: 
+        mw = mass.calculate_mass(seq)
+        MW_list.append([mw])
+
+#calculating gel electrophoresis
+def gel_elecrophoresis(df):
+    #sort proteins by mol weight
+    df_sorted = df.sort_values(by='Molecular_Weight', ascending=False)
+
+#create gel like visualization
+def gel_electro_scatter(df):
+    plt.figure(figsize=(8, 6))
+    plt.scatter(df ['Molecular_Weight'], df['Intensity'], color='skyblue', alpha=0.7)
+    plt.xlabel('Molecular Weight')
+    plt.ylabel('Intensity')
+    plt.title('Gel Electrophoresis Scatter Plot')
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+    plt.show()
+
+    gel_electro_scatter(df)
+#sort by molecular weight, then have user input of upper and lower limit and save all proteins within that list to seperate list
+#convert that new list to a csv file
+#Example of kind of what we want to do V
+#L1 = [[1.5,2.5], [3.5,4.5]]
+#for i in L1:
+    #upperLimit = i[1][0]
+    #lowerLimit = i[0][0]
+#User inputs for upper and lower limit ^
+savelist = 
+for i in Range(length(molweightlist))
+    if molweightlist[i] > [upper] and molweightlist[i] < [lower]
+        savelist.append(inputlist[i])
+
+#writing out to a csv file
+def writer(list, output_file_path):
+    # Call this function like this: writer(<the list you want to save>, <the file path>)
+    with open(output_file_path, "w") as csv_out:
+        writer = csv.writer(
+            csv_out, lineterminator="\n"
+        )
+        for seq in list:
+            writer.writerow([seq])
+
+writer([], #filepath)
