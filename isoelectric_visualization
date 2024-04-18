@@ -1,0 +1,85 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import csv
+#isoelectric point visualization
+
+input_list = read(<input file path>)
+def read(input_file_path):
+    # use this function like this: input_list = read(<input_file_path>)
+    with open(input_file_path, 'r') as read_obj:
+        csv_reader = csv.reader(read_obj)
+        list_of_csv = list(csv_reader)
+        input_list = []
+        for row in list_of_csv:
+            input_list.append(row[0])
+        return input_list
+#read csv
+##
+
+#to calculate isoelectric point
+def calculate_pI(sequence):
+    aa_charges = {'D': -1, ...}
+    pI = 0
+    for aa in sequence:
+        pI += aa_charges.get(aa, 0)
+    return pI
+#read csv file into a dataframe
+def read_csv(filename):
+    df = pd.read_csv(filename)
+    return df
+#main function to perform the tasks
+def main():
+    #read in csv file
+    filename = 'your_file.csv' #change to the file name used
+    df = read_csv(filename)
+
+    #convert to a list
+    sequences = df['Sequence'].tolist()
+
+    #calculate isoelectric point for each sequence
+    pI_values = [calculate_pI(seq) for seq in sequences]
+
+    #plot the pI values
+
+savelist =
+for i in Range(length(isoelectricpoint))
+    if isoelectricpoint[i] > [upper] and isoelectricpoint[i] < [lower]
+        savelist.append(inputlist[i])
+
+#isoelectric point
+#input csv
+##lower ph range and higher ph range
+#csv convert into list
+#figure out isoelectric point for all of them
+#and select isolectric point between the two ranges given
+
+# 
+from pyteomics import electrochem
+from pyteomics import parser 
+
+def pI(seq_list):
+    pI_list = []
+    columns = ['pI']
+    for seq in seq_list:
+        for string in seq: 
+            parsed_seq = parser.parse(string, show_unmodified_termini=True)
+            pi = electrochem.pI(parsed_seq)
+            pI_list.append([pi])
+    df = pd.DataFrame(pI_list, columns = columns)
+    fig = px.histogram(df, x="pI", nbins=20)
+    fig.show()
+
+pI(seq_list)
+
+#save csv
+import csv
+def writer(list, output_file_path):
+    # Call this function like this: writer(<the list you want to save>, <the file path>)
+    with open(output_file_path, "w") as csv_out:
+        writer = csv.writer(
+            csv_out, lineterminator="\n"
+        )
+        for seq in list:
+            writer.writerow([seq])
+
+writer(<the list you want to save>, <the file path>)
