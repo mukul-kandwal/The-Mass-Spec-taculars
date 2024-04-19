@@ -29,6 +29,7 @@ def calc_mz_isotope(input_list, charge):
             tuple_list.append(tuple_data) #add tuple to list of tuple
         if seq not in mz_isotope_dict:
             mz_isotope_dict[seq] = tuple_list
+    
     return mz_isotope_dict
 
 
