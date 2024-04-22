@@ -1,17 +1,16 @@
+# from pyteomics import parser
+# from pyteomics import electrochem
 from Bio import SeqIO
 import csv
 import PySimpleGUI as sg
 import os.path
-from pyteomics import parser
 from pyteomics import mass
-from pyteomics import electrochem
 from pyteomics import achrom
 import pyteomics
 import pandas as pd
 import plotly.express as px
 from Bio.SeqUtils.ProtParam import ProteinAnalysis
 import plotly.graph_objs as go
-from pprint import pprint
 sg.theme('Dark Brown 5')
 
 # General purpose functions ------------------------------------------------------------------------
@@ -150,7 +149,7 @@ def Digest():
                 dict_peptides = dict()
                 set_peptides = set()
                 for seq in input_list:
-                    digested_peptides = parser.cleave(seq, values["-COMBO_Enzymes-"])
+                    digested_peptides = pyteomics.parser.cleave(seq, values["-COMBO_Enzymes-"])
                     for pep in digested_peptides:
                         list_peptides.append(pep)
                         set_peptides.add(pep)
@@ -196,8 +195,8 @@ def Properties():
                     columns = ['pI']
                     for seq in input_list:
                         for string in seq:
-                            parsed_seq = parser.parse(string, show_unmodified_termini=True)
-                            pi = electrochem.pI(parsed_seq)
+                            parsed_seq = pyteomics.parser.parse(string, show_unmodified_termini=True)
+                            pi = pyteomics.electrochem.pI(parsed_seq)
                             pI_list.append([pi])
                     df = pd.DataFrame(pI_list, columns=columns)
                     fig = px.histogram(df, x="pI", nbins=20)
@@ -238,8 +237,8 @@ def Isoelectric():
                 input_list = read(file)
                 pI_list = []
                 for seq in input_list:
-                    parsed_seq = parser.parse(seq, show_unmodified_termini=True)
-                    pi = electrochem.pI(parsed_seq)
+                    parsed_seq = pyteomics.parser.parse(seq, show_unmodified_termini=True)
+                    pi = pyteomics.electrochem.pI(parsed_seq)
                     pI_list.append(pi)
                 # Graph the gel
                 # y_axis = ['string' + str(i) for i in range(len(pI_list))]
@@ -284,8 +283,8 @@ def Isoelectric():
                         else:
                             pI_list = []
                             for seq in input_list:
-                                parsed_seq = parser.parse(seq, show_unmodified_termini=True)
-                                pi = electrochem.pI(parsed_seq)
+                                parsed_seq = pyteomics.parser.parse(seq, show_unmodified_termini=True)
+                                pi = pyteomics.electrochem.pI(parsed_seq)
                                 pI_list.append(pi)
                         user_seq = []
                         for i in range(len(pI_list)):
@@ -418,10 +417,11 @@ def Chromatography():
                     input_list = read(file)
                     retention_ls = []
                     for seq in input_list:
-                        retention_ls.append(achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
+                        retention_ls.append(pyteomics.achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
                     normalized_time = []
                     for time in retention_ls:
-                        normalized_time.append((((time / max(retention_ls)) - min(retention_ls)) * int(values['-RunTime-'])))
+                        ((time - min(retention_ls)) / (max(retention_ls) - min(retention_ls)))
+                        normalized_time.append(((time - min(retention_ls)) / (max(retention_ls) - min(retention_ls))) * int(values['-RunTime-']))
                     fig2 = go.Figure()
                     fig2.add_trace(go.Histogram(x=normalized_time, marker=dict(color=[0, 255, 255])))
                     fig2.update_xaxes(title_text="Retention Time (min)")
@@ -467,7 +467,7 @@ def Chromatography():
                             else:
                                 retention_ls = []
                                 for seq in input_list:
-                                    retention_ls.append(achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
+                                    retention_ls.append(pyteomics.achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
                                 normalized_time = []
                                 for time in retention_ls:
                                     normalized_time.append((((time / max(retention_ls)) - min(retention_ls)) * int(values['-RunTime-'])))
@@ -644,7 +644,7 @@ def OrbiSpec():
                     input_list = read(file)
                     retention_ls = []
                     for seq in input_list:
-                        retention_ls.append(achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
+                        retention_ls.append(pyteomics.achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
                     normalized_time = []
                     for time in retention_ls:
                         normalized_time.append((((time / max(retention_ls)) - min(retention_ls)) * int(values['-RunTime-'])))
@@ -688,11 +688,11 @@ def OrbiSpec():
                             input_list = read(file)
                             retention_ls = []
                             for seq in input_list:
-                                retention_ls.append(achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
+                                retention_ls.append(pyteomics.achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
                             normalized_time = []
 
                             for time in retention_ls:
-                                normalized_time.append((((time / max(retention_ls)) - min(retention_ls)) * int(values['-RunTime-'])))
+                                normalized_time.append(normalized_time.append(((time - min(retention_ls)) / (max(retention_ls) - min(retention_ls))) * int(values['-RunTime-'])))
 
                             user_seq = []
                             for i in range(len(normalized_time)):
@@ -776,7 +776,7 @@ def OrbiSpec():
                             input_list = read(file)
                             retention_ls = []
                             for seq in input_list:
-                                retention_ls.append(achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
+                                retention_ls.append(pyteomics.achrom.calculate_RT(seq, methodsTranslation[values['-methods-']]))
                             normalized_time = []
 
                             for time in retention_ls:
@@ -827,11 +827,11 @@ def ms2(mz_dict, mz_list):
                     event = ""
                 else:
                     sequence = mz_dict[values['-MZ-']]
-                    mass, pos = PTM(sequence)
+                    PTMmass, pos = PTM(sequence)
                     window["-PTMPos-"].update(pos)
-                    window["-PTMMass-"].update(mass)
+                    window["-PTMMass-"].update(PTMmass)
             if event == "Run MS2!":
-                if values['-MZ-'] not in mz_list:
+                if values['-MZ-'] not in mz_dict.keys():
                     sg.popup("Precursor chosen is not in MS1 spectrum")
                     event = ""
                 elif values['-charge-'] not in Charges:
@@ -843,7 +843,7 @@ def ms2(mz_dict, mz_list):
                     PTM_Mass = int(window["-PTMPos-"].DisplayText)
                     PTM_Pos = int(window["-PTMPos-"].DisplayText)
                     # window["-PTMPos-"].DisplayText
-                    mz_dict = {'b_ion': [], 'y_ion': []}
+                    ms2_mz_dict = {'b_ion': [], 'y_ion': []}
                     b_ion_ls = []
                     y_ion_ls = []
                     for i in range(1, len(sequence)):
@@ -851,23 +851,23 @@ def ms2(mz_dict, mz_list):
                         y_ion = sequence[i:]
 
                         if PTM_Pos == 0 or PTM_Mass == 0:
-                            b_ion_ls.append(pyteomics.mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge))
-                            y_ion_ls.append(pyteomics.mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
+                            b_ion_ls.append(mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge))
+                            y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
                         else:
                             if i < PTM_Pos:
-                                b_ion_ls.append((pyteomics.mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge) + (
+                                b_ion_ls.append((mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge) + (
                                             PTM_Mass / abs(charge))))
-                                y_ion_ls.append(pyteomics.mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
+                                y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
                             else:
-                                b_ion_ls.append((pyteomics.mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge)))
-                                y_ion_ls.append(pyteomics.mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge) + (
+                                b_ion_ls.append((mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge)))
+                                y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge) + (
                                             PTM_Mass / abs(charge)))
 
-                    mz_dict['b_ion'] = b_ion_ls
-                    mz_dict['y_ion'] = y_ion_ls
+                    ms2_mz_dict['b_ion'] = b_ion_ls
+                    ms2_mz_dict['y_ion'] = y_ion_ls
 
                     traces = []
-                    for ion, mz_values in mz_dict.items():
+                    for ion, mz_values in ms2_mz_dict.items():
                         lower_xbound = min(mz_values)
                         upper_xbound = max(mz_values)
 
