@@ -286,13 +286,14 @@ def Isoelectric():
                                 parsed_seq = pyteomics.parser.parse(seq, show_unmodified_termini=True)
                                 pi = pyteomics.electrochem.pI(parsed_seq)
                                 pI_list.append(pi)
-                        user_seq = []
-                        for i in range(len(pI_list)):
-                            if int(values['-Low-']) <= pI_list[i] <= int(values['-High-']):
-                                user_seq.append(input_list[i])
 
-                        writer(user_seq, outfile_path)
-                        sg.popup("Done!")
+                            user_seq = []
+                            for i in range(len(pI_list)):
+                                if int(values['-Low-']) <= pI_list[i] <= int(values['-High-']):
+                                    user_seq.append(input_list[i])
+
+                            writer(user_seq, outfile_path)
+                            sg.popup("Done!")
 def Electrophoresis():
     layout = [[sg.Text("Choose CSV File:"), sg.FileBrowse(key="-CSV-")],
               [sg.Button("Show Electrophoresis gel")],
@@ -355,13 +356,14 @@ def Electrophoresis():
                             for seq in input_list:
                                 mw = mass.calculate_mass(seq)
                                 MW_list.append(mw)
-                        user_seq = []
-                        for i in range(len(MW_list)):
-                            if int(values['-Low-']) <= MW_list[i] <= int(values['-High-']):
-                                user_seq.append(input_list[i])
 
-                        writer(user_seq, outfile_path)
-                        sg.popup("Done!")
+                            user_seq = []
+                            for i in range(len(MW_list)):
+                                if int(values['-Low-']) <= MW_list[i] <= int(values['-High-']):
+                                    user_seq.append(input_list[i])
+
+                            writer(user_seq, outfile_path)
+                            sg.popup("Done!")
 def Chromatography():
     methodsTranslation = {'Reverse Phase at pH 2.0': achrom.RCs_guo_ph2_0,
                'Reverse Phase at pH 7.0': achrom.RCs_guo_ph7_0,
@@ -508,12 +510,18 @@ def MALDISpec():
                 input_list = read(file)
                 mz_isotope_dict = {}
                 charge = values['-Charge-']
+                lowerx = 10000000000000000000000000000000000000000000000
+                upperx = 0
                 for seq in input_list:
                     num_isotope = values['-Isoforms-']
                     # iterate and calculate individual isotope m/z value and also intensity value
                     tuple_list = []
+                    mz = mass.calculate_mass(sequence=seq, ion_type="M", charge=int(charge))
+                    if lowerx > mz:
+                        lowerx = mz
+                    if upperx < mz:
+                        upperx = mz
                     for i in range(num_isotope):
-                        mz = mass.calculate_mass(sequence=seq, ion_type="M", charge=int(charge))
                         isotope = mz + (i / int(charge))
                         intensity = (num_isotope - i) / num_isotope
                         tuple_data = (isotope, intensity)
@@ -523,9 +531,6 @@ def MALDISpec():
 
                 traces = []
                 for protein, mz_values in mz_isotope_dict.items():
-                    lowerx = min(mz_values[0])
-                    upperx = max(mz_values[0])
-
                     x_values = []
                     y_values = []
                     for mz, i in mz_values:
@@ -544,11 +549,12 @@ def MALDISpec():
                 else:
                     layout = go.Layout(
                         title="m/z Values of Proteins",
-                        xaxis=dict(title="m/z", range=[0.5*lowerx, 1.1*upperx]),
+                        xaxis=dict(title="m/z", range=[0.9*lowerx, 1.1*upperx]),
                         yaxis=dict(title="Intensity"),
                     )
                     fig = go.Figure(data=traces, layout=layout)
                     fig.show()
+
         if event == "MS2 Analysis":
             # code exeption handling
             file = values["-CSV-"]
@@ -701,12 +707,18 @@ def OrbiSpec():
 
                             mz_isotope_dict = {}
                             charge = values['-Charge-']
+                            lowerx = 10000000000000000000000000000000000000000000000
+                            upperx = 0
                             for seq in user_seq:
                                 num_isotope = values['-Isoforms-']
                                 # iterate and calculate individual isotope m/z value and also intensity value
                                 tuple_list = []
+                                mz = mass.calculate_mass(sequence=seq, ion_type="M", charge=int(charge))
+                                if lowerx > mz:
+                                    lowerx = mz
+                                if upperx < mz:
+                                    upperx = mz
                                 for i in range(num_isotope):
-                                    mz = mass.calculate_mass(sequence=seq, ion_type="M", charge=int(charge))
                                     isotope = mz + (i / int(charge))
                                     intensity = (num_isotope - i) / num_isotope
                                     tuple_data = (isotope, intensity)
@@ -716,9 +728,6 @@ def OrbiSpec():
 
                             traces = []
                             for protein, mz_values in mz_isotope_dict.items():
-                                lowerx = min(mz_values[0])
-                                upperx = max(mz_values[0])
-
                                 x_values = []
                                 y_values = []
                                 for mz, i in mz_values:
@@ -737,7 +746,7 @@ def OrbiSpec():
                             else:
                                 layout = go.Layout(
                                     title="m/z Values of Proteins",
-                                    xaxis=dict(title="m/z", range=[0.5*lowerx, 1.5*upperx]),
+                                    xaxis=dict(title="m/z", range=[0.9*lowerx, 1.1*upperx]),
                                     yaxis=dict(title="Intensity"),
                                 )
                                 fig = go.Figure(data=traces, layout=layout)
@@ -795,8 +804,8 @@ def OrbiSpec():
                                 if mz not in mz_dict:
                                     mz_dict[mz] = seq
                                     mz_list.append(mz)
-                        ms2(mz_dict, mz_list)
-                        event = ""
+                            ms2(mz_dict, mz_list)
+                            event = ""
 def ms2(mz_dict, mz_list):
     # pprint(mz_dict)
     # pprint(mz_list)
@@ -840,8 +849,11 @@ def ms2(mz_dict, mz_list):
                 else:
                     sequence = mz_dict[values['-MZ-']]
                     charge = values['-charge-']
-                    PTM_Mass = int(window["-PTMPos-"].DisplayText)
+                    upper_xbound = 0
+                    lower_xbound = 99999999999999999999999999999999999999999999999999999999999
+                    PTM_Mass = int(window["-PTMMass-"].DisplayText)
                     PTM_Pos = int(window["-PTMPos-"].DisplayText)
+                    sg.Popup(PTM_Mass)
                     # window["-PTMPos-"].DisplayText
                     ms2_mz_dict = {'b_ion': [], 'y_ion': []}
                     b_ion_ls = []
@@ -854,22 +866,24 @@ def ms2(mz_dict, mz_list):
                             b_ion_ls.append(mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge))
                             y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
                         else:
-                            if i < PTM_Pos:
-                                b_ion_ls.append((mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge) + (
-                                            PTM_Mass / abs(charge))))
+                            if i >= PTM_Pos:
+                                b_ion_ls.append(mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge) +
+                                                (PTM_Mass / abs(charge)))
                                 y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge))
                             else:
                                 b_ion_ls.append((mass.calculate_mass(sequence=b_ion, ion_type="b", charge=charge)))
-                                y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge) + (
-                                            PTM_Mass / abs(charge)))
+                                y_ion_ls.append(mass.calculate_mass(sequence=y_ion, ion_type="y", charge=charge) +
+                                                (PTM_Mass / abs(charge)))
 
                     ms2_mz_dict['b_ion'] = b_ion_ls
                     ms2_mz_dict['y_ion'] = y_ion_ls
 
                     traces = []
                     for ion, mz_values in ms2_mz_dict.items():
-                        lower_xbound = min(mz_values)
-                        upper_xbound = max(mz_values)
+                        if lower_xbound > min(mz_values):
+                            lower_xbound = min(mz_values)
+                        if upper_xbound < max(mz_values):
+                            upper_xbound = max(mz_values)
 
                         x_values = []
                         y_values = []
@@ -878,46 +892,28 @@ def ms2(mz_dict, mz_list):
                             x_values.extend([mz - 0.1, mz, mz, mz, mz + 0.1])
                             y_values.extend([0, 0, 1, 0, 0])
 
-                        trace = go.Scatter(
-                            {
+                        trace = go.Scatter({
                                 "x": x_values,
                                 "y": y_values,
                                 "visible": True,
                                 "mode": "lines",
-                                "line": {
-                                    "width": 1,
-                                },
-                            }
-                        )
-
-                        b_annotations = [dict(
-                            x=b_ion_ls[i],
-                            y=1,
-                            xref="x",
-                            yref="y",
-                            text=f"b{i + 1}",
-                            showarrow=True,
-                            arrowhead=7,
-                            ax=0,
-                            ay=-40
-                        ) for i in range(len(b_ion_ls))]
-
-                        y_annotations = [dict(x=y_ion_ls[i], y=1, xref="x", yref="y", text=f"y{i + 1}", showarrow=True,
-                            arrowhead=7, ax=0, ay=-25  # you can change this to change the height of line for the annotation
-                        ) for i in range(len(y_ion_ls))]
-
+                                "line": {"width": 1, },
+                            })
                         traces.append(trace)
 
+                    b_annotations = [dict(x=b_ion_ls[i], y=1, xref="x", yref="y", text=f"b{i + 1}", showarrow=True,
+                                          arrowhead=7, ax=0, ay=-40) for i in range(len(b_ion_ls))]
+
+                    y_annotations = [dict(x=y_ion_ls[i], y=1, xref="x", yref="y", text=f"y{len(y_ion_ls) - i}", showarrow=True,
+                                          arrowhead=7, ax=0, ay=-25) for i in range(len(y_ion_ls))]
                     layout = go.Layout(
                         title="m/z Values of B and Y ions",
-                        xaxis=dict(title="m/z", range=[lower_xbound - 50, upper_xbound + 50]),
+                        xaxis=dict(title="m/z", range=[0.9*lower_xbound, 1.1*upper_xbound]),
                         yaxis=dict(title="Intensity"),
                         annotations=b_annotations + y_annotations,
                         showlegend=False)
 
-                    # Create figure
                     fig = go.Figure(data=traces, layout=layout)
-                    # Plot figure
                     fig.show()
 def PTM(seq):
     seqlen = len(seq)
