@@ -1,9 +1,9 @@
 pyteomics
 Bio
-csv
 PySimpleGUI
 pandas
 plotly.express
 Bio.SeqUtils.ProtParam
 plotly.graph_objs
 os.path
+csv
