@@ -27,14 +27,11 @@ def plot(mz_dict, b_ion_ls, y_ion_ls):
    for ion, mz_values in mz_dict.items():
         lower_xbound = min(mz_values)
         upper_xbound = max(mz_values)
-
         x_values = []
         y_values = []
-
         for mz in mz_values:
             x_values.extend([mz - 0.1, mz, mz, mz, mz + 0.1])
             y_values.extend([0, 0, 1, 0, 0])
-            
         trace = go.Scatter(
             {
                 "x": x_values,
@@ -46,7 +43,6 @@ def plot(mz_dict, b_ion_ls, y_ion_ls):
                 },
             }
         )
-
         b_annotations = [dict(
             x=b_ion_ls[i],
             y=1,
@@ -58,7 +54,6 @@ def plot(mz_dict, b_ion_ls, y_ion_ls):
             ax=0,
             ay=-40
         )for i in range(len(b_ion_ls))]
-
         y_annotations = [dict(
             x=y_ion_ls[i],
             y=1,
@@ -70,20 +65,14 @@ def plot(mz_dict, b_ion_ls, y_ion_ls):
             ax=0,
             ay=-25 #you can change this to change the height of line for the annotation
         )for i in range(len(y_ion_ls))]
-
         traces.append(trace)
-
-        
         layout = go.Layout(
             title="m/z Values of B and Y ions",
             xaxis=dict(title="m/z", range=[lower_xbound -50 , upper_xbound + 50]),
             yaxis=dict(title="Intensity"),
             annotations= b_annotations + y_annotations,
             showlegend =  False)
-
-        # Create figure
         fig = go.Figure(data=traces, layout=layout)
-        # Plot figure
         fig.show()
 
 plot(mz_dict, b_ion_ls, y_ion_ls)
