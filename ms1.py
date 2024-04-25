@@ -38,7 +38,6 @@ mz_dict = calc_mz_isotope(input_list, user_input)
 
 def plot_ms(mz_dict):
     traces = []
-
     for protein, mz_values in mz_dict.items():
         x_values = []
         y_values = []
@@ -68,11 +67,7 @@ def plot_ms(mz_dict):
             xaxis=dict(title="m/z"),
             yaxis=dict(title="Intensity"),
         )
-
-        # Create figure
         fig = go.Figure(data=traces, layout=layout)
-
-        # Plot figure
         fig.show()
 
 
