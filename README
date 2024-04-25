@@ -1,0 +1,2 @@
+in order to install all dependencies, download the requinments file and run the following command:
+pip install -r <Path_To_Requirment_File>
