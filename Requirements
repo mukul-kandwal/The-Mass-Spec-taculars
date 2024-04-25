@@ -1,5 +1,5 @@
 pyteomics
 biopython
-PySimpleGUI==5.0.3 
+PySimpleGUI
 pandas
 plotly
