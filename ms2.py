@@ -64,7 +64,7 @@ def plot(mz_dict, b_ion_ls, y_ion_ls):
             y=1,
             xref="x",
             yref="y",
-            text=f"y{i+1}",
+            text=f"y{len(y_ion_ls) - i}",
             showarrow=True,
             arrowhead=7,
             ax=0,
